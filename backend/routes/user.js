@@ -1,10 +1,19 @@
-const express = require('express');
+import express from "express";
+import { signup, login } from "../controllers/user.js"; // updated controller path
+
 const router = express.Router({ mergeParams: true });
-const { signup, login } = require('../controllers/user');
 
-router.post("/login", login);
+// Auth routes
 router.post("/signup", signup);
-router.route("/add_to_activity");
-router.route("/get_all_activity");
+router.post("/login", login);
 
-module.exports = router;
+// Placeholder activity routes (replace handlers later)
+router.post("/add_to_activity", (req, res) => {
+  res.status(200).json({ message: "Add activity endpoint not implemented yet" });
+});
+
+router.get("/get_all_activity", (req, res) => {
+  res.status(200).json({ message: "Get all activity endpoint not implemented yet" });
+});
+
+export default router;

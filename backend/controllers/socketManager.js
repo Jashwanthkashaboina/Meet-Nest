@@ -1,62 +1,95 @@
-const { Server } = require("socket.io");
+import { Server } from "socket.io";
+import process from "process";
+
+// Increase max listeners to avoid warnings (optional)
+process.setMaxListeners(20);
+
+let connections = {};
+let messages = {};
+let timeOnline = {};
 
 const connectToSocket = (server) => {
   const io = new Server(server, {
     cors: {
-      origin: "http://localhost:5173",
+      origin: "*",
       methods: ["GET", "POST"],
-    }
+      allowedHeaders: ["*"],
+      credentials: true,
+    },
   });
 
   io.on("connection", (socket) => {
-    console.log("User connected:", socket.id);
+    console.log(`Socket connected: ${socket.id}`);
 
-    // JOIN ROOM (MEETING)
-    socket.on("join-room", (roomId) => {
-      socket.join(roomId);
+    socket.on("join-call", (path) => {
+      if (!connections[path]) connections[path] = [];
 
-      console.log(`${socket.id} joined room ${roomId}`);
+      connections[path].push(socket.id);
+      timeOnline[socket.id] = new Date();
 
-      // notify others in room
-      const clients = Array.from(
-        io.sockets.adapter.rooms.get(roomId) || []
-      ); // FIX
+      connections[path].forEach((id) => {
+        io.to(id).emit("user-joined", socket.id, connections[path]);
+        console.log(`user joined ${connections[path]} to ${socket.id} socket`);
+      });
 
-      socket.to(roomId).emit(
-        "user-joined",
-        socket.id,
-        clients
-      ); // FIX
+      if (messages[path]) {
+        messages[path].forEach((msg) => {
+          io.to(socket.id).emit(
+            "chat-message",
+            msg.data,
+            msg.sender,
+            msg["socket-id-sender"]
+          );
+        });
+      }
     });
 
-    // CHAT MESSAGE
-    socket.on("chat-message", ({ roomId, message }) => {
-      io.to(roomId).emit("chat-message", {
-        sender: socket.id,
-        message,
+    socket.on("signal", (toId, message) => {
+      io.to(toId).emit("signal", socket.id, message);
+    });
+
+    socket.on("chat-message", (data, sender) => {
+      const [matchingRoom, found] = Object.entries(connections).reduce(
+        ([room, isFound], [roomKey, roomValue]) => {
+          if (!isFound && roomValue.includes(socket.id)) return [roomKey, true];
+          return [room, isFound];
+        },
+        ["", false]
+      );
+
+      if (!found) return;
+
+      if (!messages[matchingRoom]) messages[matchingRoom] = [];
+
+      messages[matchingRoom].push({
+        sender,
+        data,
+        "socket-id-sender": socket.id,
+      });
+
+      connections[matchingRoom].forEach((id) => {
+        io.to(id).emit("chat-message", data, sender, socket.id);
       });
     });
 
-    // WEBRTC SIGNALING
-    socket.on("signal", ({ to, signal }) => {
-      io.to(to).emit("signal", {
-        from: socket.id,
-        signal,
-      });
-    });
-
-    // DISCONNECT
     socket.on("disconnect", () => {
-      console.log("User disconnected:", socket.id);
-      // Socket.IO automatically removes user from all rooms
+      for (const [room, sockets] of Object.entries(connections)) {
+        const index = sockets.indexOf(socket.id);
+        if (index !== -1) {
+          sockets.splice(index, 1);
 
-      socket.rooms.forEach((roomId) =>{
-        socket.to(roomId).emit('user-left', socket.id);
-      });
+          sockets.forEach((id) => io.to(id).emit("user-left", socket.id));
+          console.log('user disconneted : ', socket.id);
+
+          if (sockets.length === 0) delete connections[room];
+
+          break;
+        }
+      }
     });
   });
 
   return io;
 };
 
-module.exports = connectToSocket;
+export default connectToSocket;
