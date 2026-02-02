@@ -1,49 +1,82 @@
-import User from "../models/user.js";
-import bcrypt from "bcrypt";
+import httpStatus from "http-status";
+import  User  from "../models/user.js";
+import bcrypt, { hash } from "bcrypt"
+import  Meeting  from "../models/meeting.js";
+import jwt from "jsonwebtoken";
 
-export const signup = async (req, res) => {
-  const { email, username, password } = req.body;
-
-  try {
-    const existingUser = await User.findOne({ username });
-    if (existingUser) {
-      return res.status(409).json({ message: "User already exists" });
-    }
-
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ email, username, password: hashedPassword });
-
-    await newUser.save();
-
-    res.status(201).json({ message: "User Registered Successfully" });
-  } catch (err) {
-    console.error("Signup error:", err);
-    res.status(500).json({ message: `Something went wrong: ${err.message}` });
-  }
-};
-
-export const login = async (req, res) => {
+const login = async (req, res) => {
   const { username, password } = req.body;
 
-  if (!username || !password) {
-    return res.status(400).json({ message: "Bad Request" });
-  }
+  const user = await User.findOne({ username });
+  if (!user) return res.status(404).json({ message: "User not found" });
 
-  try {
-    const user = await User.findOne({ username });
-    if (!user) {
-      return res.status(404).json({ message: "User Not Found" });
-    }
+  const isMatch = await bcrypt.compare(password, user.password);
+  if (!isMatch) return res.status(401).json({ message: "Invalid credentials" });
 
-    const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) {
-      return res.status(401).json({ message: "Invalid Credentials" });
-    }
+  const token = jwt.sign(
+    { id: user._id, username: user.username },
+    process.env.JWT_SECRET,
+    { expiresIn: "1d" }
+  );
 
-    // TODO: Generate JWT token here
-    return res.status(200).json({ message: "Login Successful!" });
-  } catch (err) {
-    console.error("Login error:", err);
-    return res.status(500).json({ message: "Something went wrong" });
-  }
+  res.status(200).json({ token });
 };
+
+
+
+const signup = async (req, res) => {
+    const { name, username, password } = req.body;
+
+
+    try {
+        const existingUser = await User.findOne({ username });
+        if (existingUser) {
+            return res.status(httpStatus.FOUND).json({ message: "User already exists" });
+        }
+
+        const hashedPassword = await bcrypt.hash(password, 10);
+
+        const newUser = new User({
+            name: name,
+            username: username,
+            password: hashedPassword
+        });
+
+        await newUser.save();
+
+        res.status(httpStatus.CREATED).json({ message: "User Registered" })
+
+    } catch (e) {
+        res.json({ message: `Something went wrong ${e}` })
+    }
+
+}
+
+
+const getUserHistory = async (req, res) => {
+    try {
+        const username = req.user.username;
+        const meetings = await Meeting.find({ user_id: user.username })
+        res.status(200).json(meetings)
+    } catch (e) {
+        res.status(500).json({ message: `Something went wrong ${e}` })
+    }
+}
+
+const addToHistory = async (req, res) => {
+    
+  const { meeting_code } = req.body; 
+  const username = req.user.username;
+  const newMeeting = new Meeting({
+      user_id: username,
+      meetingCode: meeting_code
+  })
+
+  await newMeeting.save();
+
+  res.status(201).json({ message: "Added code to history" });
+    
+}
+
+
+export { login, signup, getUserHistory, addToHistory }

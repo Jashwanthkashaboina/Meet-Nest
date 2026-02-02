@@ -64,3 +64,64 @@
   height: 60vh;
   width: auto;
 }
+
+.navBar{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 20px;
+  text-align: center;
+}
+
+.nav-heading{
+  margin-left: 15px;
+  padding-top: 7px;
+}
+
+.meetContainer{
+  display: flex;
+  padding-inline: 20px;
+  height: 80vh;
+  gap: 10vw;
+  justify-content: center;
+
+}
+
+.leftPanel{
+  height: 100%;
+  display: flex;
+}
+
+.meeting-input{
+  padding-top: 170px;
+  margin-top: 5px;
+}
+
+.meeting-input h2{
+  margin-bottom: 15px;
+}
+
+#nav-content{
+  padding-top: 5px;
+  font-size: 1.2rem;
+}
+.restore{
+  padding-top: 5px;
+}
+
+.rightPanel{
+  display: flex;
+  align-items: center;
+}
+
+.rightPanel > img{
+  width: 30vw;
+  height: auto;
+  border-radius: 20px;
+}
+
+.btn{
+  height: 40px;
+  width: auto;
+  padding-top: 20px;
+}
