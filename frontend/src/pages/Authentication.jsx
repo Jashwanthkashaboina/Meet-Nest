@@ -21,6 +21,9 @@ export default function Authentication() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
 
+  const [errors, setErrors] = useState({});
+
+
   const { handleRegister, handleLogin } = useContext(AuthContext);
   const navigate = useNavigate();
 
@@ -31,8 +34,33 @@ export default function Authentication() {
     setPassword("");
   };
 
+  const validate = () => {
+  const newErrors = {};
+
+  if (formState === 1 && !email.trim()) {
+    newErrors.email = "Email is required";
+  }
+
+  if (!username.trim()) {
+    newErrors.username = "Username is required";
+  }
+
+  if (!password.trim()) {
+    newErrors.password = "Password is required";
+  }
+
+  setErrors(newErrors);
+
+  return Object.keys(newErrors).length === 0;
+};
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if(!validate()){
+      toast.error('Please Fill all required details');
+      return;
+    }
     try {
       if (formState === 1) {
         await handleRegister(email, username, password);
@@ -46,7 +74,7 @@ export default function Authentication() {
       
       navigate("/home");
     } catch (err) {
-      toast.error(err?.response?.data?.message || "Something went wrong");
+      toast.error("Something went wrong");
     }
   };
 
@@ -102,7 +130,6 @@ export default function Authentication() {
             </Box>
 
             <Box component="form" onSubmit={handleSubmit}>
-              {/* Email only shown in SignUp */}
               {formState === 1 && (
                 <TextField
                   fullWidth
@@ -110,6 +137,8 @@ export default function Authentication() {
                   label="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  error={!!errors.username}
+                  helperText={errors.email}
                 />
               )}
 
@@ -119,6 +148,8 @@ export default function Authentication() {
                 label="Username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                error={!!errors.username}
+                helperText={errors.username}
               />
 
               <TextField
@@ -128,6 +159,8 @@ export default function Authentication() {
                 label="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                error={!!errors.password}
+                helperText={errors.password}
               />
 
               <Button
