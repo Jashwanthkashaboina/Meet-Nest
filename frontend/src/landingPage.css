@@ -73,9 +73,13 @@
   text-align: center;
 }
 
-.nav-heading{
+.navBar h2{
   margin-left: 15px;
   padding-top: 7px;
+}
+
+.navBar span:hover{
+  color: #1976d2;
 }
 
 .meetContainer{
@@ -93,7 +97,7 @@
 }
 
 .meeting-input{
-  padding-top: 170px;
+  padding-top: 180px;
   margin-top: 5px;
 }
 
@@ -120,8 +124,96 @@
   border-radius: 20px;
 }
 
-.btn{
-  height: 40px;
-  width: auto;
-  padding-top: 20px;
+
+
+
+/* HISTORY PAGE */
+
+.historyPage {
+  min-height: 100vh;
+  padding: 2rem;
+  background: #f4f6f8;
 }
+
+.historyHeader {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.historyHeader h2 {
+  font-size: 1.6rem;
+  font-weight: 600;
+}
+
+.historyList {
+  max-width: 700px;
+  margin: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.2rem;
+}
+
+.historyCard {
+  border-radius: 12px !important;
+  transition: all 0.25s ease;
+}
+
+.historyCard:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  cursor: pointer;
+}
+
+.meetingCode {
+  font-size: 1rem !important;
+  font-weight: 600 !important;
+  color: #333 !important;
+}
+
+.meetingDate {
+  font-size: 0.9rem !important;
+  color: #666 !important;
+}
+
+/* LANDING PAGE */
+.notFoundPage {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #f7f8fb;
+}
+
+.notFoundCard {
+  width: 90%;
+  max-width: 500px;
+  border-radius: 20px;
+  text-align: center;
+  padding: 2rem;
+  box-shadow: 0 12px 30px rgba(0,0,0,0.15);
+}
+
+.notFoundTitle {
+  font-size: 4.5rem;
+  margin: 0;
+  font-weight: 800;
+}
+
+.notFoundText {
+  font-size: 1.4rem;
+  margin-top: 0.5rem;
+}
+
+.notFoundSubText {
+  color: #666;
+  margin: 1rem 0 1.5rem;
+}
+
+.notFoundButton {
+  background: #ff9839;
+  color: white;
+  font-weight: 700;
+}
+

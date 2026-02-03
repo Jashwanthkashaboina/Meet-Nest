@@ -1,20 +1,17 @@
-import * as React from "react";
 import { useState, useContext } from "react";
 import {
   Avatar,
   Button,
   CssBaseline,
   TextField,
-  FormControlLabel,
-  Checkbox,
   Paper,
   Box,
-  Typography,
-  Snackbar, Alert
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { AuthContext } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const theme = createTheme();
 
@@ -23,60 +20,42 @@ export default function Authentication() {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-
-  // snack bar
-  const [snackBarOpen, setSnackbarOpen] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState("");
-  const [snackbarSeverity, setSnackbarSeverity] = useState("error");
-
-  const showSnackbar = (message, severity = 'error') =>{
-    setSnackbarMessage(message);
-    setSnackbarSeverity(severity);
-    setSnackbarOpen(true);
-  }
-
-  const handleSnackbarClose = () => setSnackbarOpen(false);
 
   const { handleRegister, handleLogin } = useContext(AuthContext);
+  const navigate = useNavigate();
+
+  const switchForm = (state) => {
+    setFormState(state);
+    setEmail("");
+    setUsername("");
+    setPassword("");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       if (formState === 1) {
         await handleRegister(email, username, password);
-        showSnackbar("Registration successful!", "success");
-        setFormState(0);
-        // setTimeout(() => {
-        //     navigate("/login");
-        // }, 1500);
-      } else if(formState === 0){
         await handleLogin(username, password);
-        showSnackbar("Login successful!", "success");
 
-        // setTimeout(() => {
-        //     navigate("/dashboard");
-        // }, 1500);
+        toast.success("Registration successful!");
+      } else {
+        await handleLogin(username, password);
+        toast.success("Login successful!");
       }
+      
+      navigate("/home");
     } catch (err) {
-    //   let message = err.response.data.message;
-      showSnackbar(err?.response?.data?.message || "Something went wrong", "error");
+      toast.error(err?.response?.data?.message || "Something went wrong");
     }
   };
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
+      {/* <Toaster position="top-center" /> */}
 
-      {/* ROOT FLEX CONTAINER */}
-      <Box
-        sx={{
-          display: "flex",
-          height: "100vh",
-          width: "100vw",
-        }}
-      >
-        {/* LEFT IMAGE */}
+      <Box sx={{ display: "flex", height: "100vh", width: "100vw" }}>
         <Box
           sx={{
             width: "50%",
@@ -88,7 +67,6 @@ export default function Authentication() {
           }}
         />
 
-        {/* RIGHT FORM */}
         <Paper
           elevation={6}
           square
@@ -108,14 +86,15 @@ export default function Authentication() {
               <Box sx={{ mt: 1 }}>
                 <Button
                   variant={formState === 0 ? "contained" : "outlined"}
-                  onClick={() => setFormState(0)}
+                  onClick={() => switchForm(0)}
                 >
                   Sign In
                 </Button>
+
                 <Button
                   sx={{ ml: 1 }}
                   variant={formState === 1 ? "contained" : "outlined"}
-                  onClick={() => setFormState(1)}
+                  onClick={() => switchForm(1)}
                 >
                   Sign Up
                 </Button>
@@ -123,6 +102,7 @@ export default function Authentication() {
             </Box>
 
             <Box component="form" onSubmit={handleSubmit}>
+              {/* Email only shown in SignUp */}
               {formState === 1 && (
                 <TextField
                   fullWidth
@@ -146,18 +126,9 @@ export default function Authentication() {
                 margin="normal"
                 type="password"
                 label="Password"
-                value={password} // making form controlled 
+                value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
-
-              <FormControlLabel
-                control={<Checkbox />}
-                label="Remember me"
-              />
-
-              {error && (
-                <Typography color="error">{error}</Typography>
-              )}
 
               <Button
                 type="submit"
@@ -171,21 +142,6 @@ export default function Authentication() {
           </Box>
         </Paper>
       </Box>
-
-    <Snackbar 
-        open={snackBarOpen}
-        autoHideDuration={3000}
-        onClose={handleSnackbarClose}
-        anchorOrigin={{ vertical: "top", horizontal: "center" }}
-    >
-        <Alert 
-            onClose={handleSnackbarClose} 
-            severity={snackbarSeverity} 
-            sx={{ width: '100%' }}
-        >
-            { snackbarMessage }
-        </Alert>    
-    </Snackbar>
     </ThemeProvider>
   );
 }

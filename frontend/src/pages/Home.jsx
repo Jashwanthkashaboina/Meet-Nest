@@ -6,6 +6,7 @@ import { Button, IconButton, TextField } from '@mui/material';
 import RestoreIcon from '@mui/icons-material/Restore';
 import { AuthContext } from '../contexts/AuthContext';
 import toast from "react-hot-toast";
+import LogoutIcon from '@mui/icons-material/Logout';
 function HomeComponent() {
 
 
@@ -31,45 +32,85 @@ function HomeComponent() {
 
     return (
         <>
-
             <div className="navBar">
+                <h2>Apna Video Call</h2>
 
-                <div style={{ display: "flex", alignItems: "center" }}>
+                <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+                    
+                    <div
+                        onClick={() => navigate("/history")}
+                        style={{
+                            display: "flex",
+                            alignItems: "center",
+                            cursor: "pointer",
+                            gap: "4px",
+                            marginTop: '10px',
+                        }}
+                    >
+                    <RestoreIcon 
+                        sx={{
+                            '&:hover': {
+                                color: '#1976d2',
+                            }
+                        }}
 
-                    <h2>Apna Video Call</h2>
-                </div>
+                    
+                    />
+                    <span>History</span>
+                    </div>
 
-                <div style={{ display: "flex", alignItems: "center" }}>
-                    <IconButton onClick={
-                        () => {
-                            navigate("/history");
-                        }
-                    }>
-                        <RestoreIcon />
-                    </IconButton>
-                    <p>History</p>
-
-                    <Button onClick={() => {
-                        localStorage.removeItem("token")
-                        navigate("/auth")
-                    }}>
-                        Logout
+                    <Button
+                        startIcon={<LogoutIcon />}
+                        onClick={() => {
+                            localStorage.removeItem("token");
+                            navigate("/auth");
+                        }}
+                        variant="outlined"
+                        color="error"
+                        sx={{
+                            borderRadius: '20px',
+                            textTransform: 'none',
+                            fontWeight: 500,
+                            mt: '10px'
+                        }}
+                    >
+                      Logout 
                     </Button>
+
                 </div>
-
-
             </div>
 
 
             <div className="meetContainer">
                 <div className="leftPanel">
-                    <div>
+                    <div className='meeting-input'>
                         <h2>Providing Quality Video Call Just Like Quality Education</h2>
 
                         <div style={{ display: 'flex', gap: "10px" }}>
 
-                            <TextField onChange={e => setMeetingCode(e.target.value)} id="outlined-basic" label="Meeting Code" variant="outlined" />
-                            <Button onClick={handleJoinVideoCall} variant='contained'>Join</Button>
+                            <TextField 
+                                autoFocus
+                                onChange={e => setMeetingCode(e.target.value)} 
+                                onKeyDown={e => e.key === 'Enter' && handleJoinVideoCall()}
+                                id="outlined-basic" label="Meeting Code" 
+                                variant="outlined" 
+                                sx={{mt: '5px'}}
+                            />
+                            <Button 
+                                
+                                onClick={handleJoinVideoCall} 
+                                variant='contained'
+                                sx={{
+                                    height: 45,
+                                    paddingInline: 3,
+                                    fontSize: '1rem',
+                                    borderRadius: '12px',
+                                    mt: '10px', ml: '5px'
+                                }}
+                                
+                            >
+                                Join
+                            </Button>
 
                         </div>
                     </div>
