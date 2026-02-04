@@ -33,7 +33,12 @@ function HomeComponent() {
     return (
         <>
             <div className="navBar">
-                <h2>Apna Video Call</h2>
+                <h2 
+                    onClick={() => navigate('/')} 
+                    style={{cursor: 'pointer'}}
+                >
+                    Meet Nest
+                </h2>
 
                 <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
                     
@@ -84,7 +89,7 @@ function HomeComponent() {
             <div className="meetContainer">
                 <div className="leftPanel">
                     <div className='meeting-input'>
-                        <h2>Providing Quality Video Call Just Like Quality Education</h2>
+                        <h2>Providing Quality Video</h2>
 
                         <div style={{ display: 'flex', gap: "10px" }}>
 

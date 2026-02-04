@@ -137,7 +137,7 @@ export default function Authentication() {
                   label="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  error={!!errors.username}
+                  error={!!errors.email}
                   helperText={errors.email}
                 />
               )}

@@ -6,7 +6,7 @@ export default function LandingPage() {
         <div className='landingPageContainer'>
             <nav className='navbar'>
                 <div className="nav-header">
-                    <h2>Apna Video Call</h2>
+                    <h2>Meet Nest</h2>
                 </div>
                 <div className="nav-list">
                     <p onClick={
@@ -23,7 +23,7 @@ export default function LandingPage() {
             <div className="landingPage-body">
                 <div>
                     <h1><span style={{color: '#FF9839'}}>Connect</span> with your Loved Ones</h1>
-                    <p>cover a distance by Apna Video call</p>
+                    <p>cover a distance by Meet Nest</p>
                     <div role='button'>
                         <Link to={'/auth'}>Get Started</Link>
                     </div>
