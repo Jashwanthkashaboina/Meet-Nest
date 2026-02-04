@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) =>{
 
         try{
             // these details are sent to backend and verified there
-            let request = await client.post('/signup', {
+            let request = await client.post('/user/signup', {
                 email,
                 username,
                 password,
@@ -36,7 +36,7 @@ export const AuthProvider = ({ children }) =>{
 
     const handleLogin = async (username, password) => {
         try {
-            let request = await client.post("/login", {
+            let request = await client.post("/user/login", {
             username,
             password,
             });
@@ -53,7 +53,7 @@ export const AuthProvider = ({ children }) =>{
 
     const getHistoryOfUser = async () => {
         try {
-            let request = await client.get("/get_all_activity", {
+            let request = await client.get("/user/get_all_activity", {
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem("token")}`,
                 },
@@ -67,7 +67,7 @@ export const AuthProvider = ({ children }) =>{
 
     const addToUserHistory = async (meetingCode) => {
         try {
-            let request = await client.post("/add_to_activity", 
+            let request = await client.post("/user/add_to_activity", 
                 { meeting_code: meetingCode },
                 {
                     headers: {
