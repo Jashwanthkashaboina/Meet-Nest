@@ -157,6 +157,7 @@ function VideoMeetComponent() {
     let getMedia = () => {
         setVideo(videoAvailable);
         setAudio(audioAvailable);
+        getUserMedia();
         connectToSocketServer();
     }
 
@@ -317,7 +318,22 @@ function VideoMeetComponent() {
             socketRef.current.on('chat-message', addMessage);
 
             socketRef.current.on('user-left', (id) => {
-                setVideos((videos) => videos.filter((video) => video.socketId !== id));
+
+                // Remove from videos UI
+                setVideos((videos) =>
+                    videos.filter((video) => video.socketId !== id)
+                );
+
+                // Close peer connection
+                if (connections[id]) {
+                    connections[id].close();
+                    delete connections[id];
+                }
+
+                // If no more peers → end call automatically
+                if (Object.keys(connections).length === 0) {
+                    handleEndCall();
+                }
             });
 
             socketRef.current.on('user-joined', (id, clients) => {
@@ -440,14 +456,31 @@ function VideoMeetComponent() {
 
     let handleEndCall = () => {
         try {
-            let tracks = localVideoref.current.srcObject.getTracks();
-            tracks.forEach(track => track.stop());
-        } catch (e) { }
-        
+            // Stop local stream
+            if (window.localStream) {
+                window.localStream.getTracks().forEach(track => track.stop());
+            }
+
+            // Close all peer connections
+            for (let id in connections) {
+                connections[id].close();
+            }
+
+            connections = {};
+
+            // Disconnect socket
+            if (socketRef.current) {
+                socketRef.current.disconnect();
+            }
+
+        } catch (e) { console.log(e); }
+
         localStorage.removeItem('activeMeeting');
         localStorage.removeItem('meetingUsername');
+
         navigate('/home');
-    }
+    };
+
 
     let openChat = () => {
         setModal(true);
