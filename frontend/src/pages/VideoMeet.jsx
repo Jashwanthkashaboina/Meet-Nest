@@ -1238,24 +1238,33 @@ function VideoMeetComponent() {
 
     let handleEndCall = () => {
         try {
-            // Stop local stream
+            // Stop tracks
             if (window.localStream) {
                 window.localStream.getTracks().forEach(track => track.stop());
             }
 
-            // Close all peer connections
+            // Remove stream reference
+            window.localStream = null;
+
+            // Clear video element source
+            if (localVideoref.current) {
+                localVideoref.current.srcObject = null;
+            }
+
+            // Close peer connections
             for (let id in connections) {
                 connections[id].close();
             }
 
             connections = {};
 
-            // Disconnect socket
             if (socketRef.current) {
                 socketRef.current.disconnect();
             }
 
-        } catch (e) { console.log(e); }
+        } catch (e) {
+            console.log(e);
+        }
 
         localStorage.removeItem('activeMeeting');
         localStorage.removeItem('meetingUsername');

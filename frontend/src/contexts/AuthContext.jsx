@@ -1,5 +1,5 @@
 import { createContext, useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { redirect, useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import axios from "axios";
 import server from "../../environment";
@@ -52,7 +52,14 @@ export const AuthProvider = ({ children }) =>{
 
             if (request.status === 200) {
                 localStorage.setItem("token", request.data.token); // SAVE TOKEN
-                return "Login successful";
+
+                // Check if redirect path exists
+                const redirectPath = localStorage.getItem("redirectAfterLogin");
+                if(redirectPath){
+                    localStorage.removeItem("redirectAfterLogin");
+                    return { redirectTo: redirectPath };
+                }
+                return { redirectTo: '/home' };
             }
         } catch (err) {
             throw err;
