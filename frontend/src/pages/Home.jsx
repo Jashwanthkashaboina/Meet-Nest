@@ -4,22 +4,28 @@ import { useNavigate } from 'react-router-dom'
 import "../App.css";
 import { Button, Box, IconButton, TextField } from '@mui/material';
 import RestoreIcon from '@mui/icons-material/Restore';
-import { AuthContext } from '../contexts/AuthContext';
 import toast from "react-hot-toast";
 import LogoutIcon from '@mui/icons-material/Logout';
+import { AuthContext } from '../contexts/AuthContext';
 import { nanoid } from 'nanoid';
 function HomeComponent() {
 
 
     let navigate = useNavigate();
     const [meetingCode, setMeetingCode] = useState("");
+    const {addToUserHistory} = useContext(AuthContext);
 
-    const handleNewMeeting = () => {
+    const handleNewMeeting = async () => {
         const meetingId = nanoid(10); // generates short random id
-        navigate(`/meet/${meetingId}`);
+        try{
+            await addToUserHistory(meetingId);
+            toast.success("Meeting Created!");
+            navigate(`/meet/${meetingId}`);
+        } catch(err){
+            toast.error(`Failed to create Meeting ${err}`);
+        }
     };
 
-    const {addToUserHistory} = useContext(AuthContext);
     let handleJoinVideoCall = async () => {
         if (!meetingCode.trim()) {
             toast.error("Please enter a meeting code");
@@ -31,7 +37,7 @@ function HomeComponent() {
             toast.success("Joined successfully!");
             navigate(`/meet/${meetingCode}`);
         } catch (err) {
-            toast.error("Something went wrong. Please try again.");
+            toast.error(`Something went wrong. Please try again.${err}`);
         }
     };
 

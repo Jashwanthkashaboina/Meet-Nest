@@ -60,7 +60,7 @@ const signup = async (req, res) => {
 
 const getUserHistory = async (req, res) => {
   try {
-    const meetings = await Meeting.find({ user_id: req.user.id });
+    const meetings = await Meeting.find({ user_id: req.user.id }).sort({createdAt: -1});
 
     res.status(200).json(meetings);
   } catch (e) {
