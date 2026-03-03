@@ -57,29 +57,29 @@ export default function Authentication() {
 
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!validate()) {
-    toast.error("Please fill all required details");
-    return;
-  }
-
-  try {
-    let result;
-
-    if (formState === 1) {
-      await handleRegister(email, username, password);
-      toast.success("Registration successful!");
+    if (!validate()) {
+      toast.error("Please fill all required details");
+      return;
     }
 
-    result = await handleLogin(username, password);
+    try {
+      let result;
 
-      toast.success("Login successful!");
-      navigate(result.redirectTo);
+      if (formState === 1) {
+        await handleRegister(email, username, password);
+        toast.success("Registration successful!");
+      }
 
-    } catch (err) {
-      toast.error("Something went wrong");
-    }
+      result = await handleLogin(username, password);
+
+        toast.success("Login successful!");
+        navigate(result.redirectTo);
+
+      } catch (err) {
+        toast.error("Something went wrong");
+      }
   };
 
   return (

@@ -1236,41 +1236,91 @@ function VideoMeetComponent() {
         setScreen(!screen);
     }
 
-    let handleEndCall = () => {
+    // let handleEndCall = () => {
+    //     try {
+    //         // Stop tracks
+    //         if (window.localStream) {
+    //             window.localStream.getTracks().forEach(track => track.stop());
+    //         }
+
+    //         // Remove stream reference
+    //         window.localStream = null;
+
+    //         // Clear video element source
+    //         if (localVideoref.current) {
+    //             localVideoref.current.srcObject = null;
+    //         }
+
+    //         // Close peer connections
+    //         for (let id in connections) {
+    //             connections[id].close();
+    //         }
+
+    //         connections = {};
+
+    //         if (socketRef.current) {
+    //             socketRef.current.disconnect();
+    //         }
+
+    //     } catch (e) {
+    //         console.log(e);
+    //     }
+
+    //     localStorage.removeItem('activeMeeting');
+    //     localStorage.removeItem('meetingUsername');
+
+    //     navigate('/home');
+    // };
+    
+    const handleEndCall = async () => {
         try {
-            // Stop tracks
+            // Stop local tracks
             if (window.localStream) {
-                window.localStream.getTracks().forEach(track => track.stop());
+                window.localStream.getTracks().forEach(track => {
+                    track.stop();
+                });
             }
 
-            // Remove stream reference
-            window.localStream = null;
-
-            // Clear video element source
+            // Remove video element stream
             if (localVideoref.current) {
                 localVideoref.current.srcObject = null;
             }
 
-            // Close peer connections
-            for (let id in connections) {
-                connections[id].close();
-            }
+            // Close all peer connections
+            Object.values(connections).forEach(pc => {
+                pc.getSenders().forEach(sender => {
+                    if (sender.track) sender.track.stop();
+                });
+                pc.close();
+            });
 
             connections = {};
 
+            // Disconnect socket
             if (socketRef.current) {
                 socketRef.current.disconnect();
+                socketRef.current = null;
             }
 
-        } catch (e) {
-            console.log(e);
+            // Clear state
+            setVideos([]);
+            setMessages([]);
+
+            window.localStream = null;
+
+        } catch (err) {
+            console.log(err);
         }
 
         localStorage.removeItem('activeMeeting');
         localStorage.removeItem('meetingUsername');
 
-        navigate('/home');
+        //  Small delay ensures hardware release
+        setTimeout(() => {
+            navigate('/home');
+        }, 300);
     };
+    
     const startDrag = () => {
         dragRef.current = true;
     };
@@ -1312,6 +1362,7 @@ function VideoMeetComponent() {
 
 
     let sendMessage = () => {
+        if(!message.trim()) return;
         console.log(socketRef.current);
         socketRef.current.emit('chat-message', message, username)
         setMessage("");
@@ -1520,7 +1571,14 @@ function VideoMeetComponent() {
                                     value={message}
                                     onChange={(e) => setMessage(e.target.value)}
                                     onKeyDown={(e) => {
-                                        if (e.key === 'Enter') sendMessage();
+                                        
+                                        if (e.key === 'Enter'){
+                                            e.preventDefault();
+
+                                            if(!message.trim()) return;
+
+                                            sendMessage();
+                                        }
                                     }}
                                     label="Enter your chat"
                                     variant="outlined"
