@@ -7,8 +7,11 @@ import Home from './pages/Home';
 import History from './pages/History';
 import { Toaster } from "react-hot-toast";
 import NotFound from "./pages/NotFound";
+import withAuth from "./utils/WithAuth";
 
 function App() {
+  const ProtectedVideoMeet = withAuth(VideoMeet);
+  const ProtectedHistory = withAuth(History);
   return (
     <BrowserRouter>
       <AuthProvider>
@@ -16,8 +19,8 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route path="/home" element={<Home />} /> 
           <Route path="/auth" element={<Authentication />} />
-          <Route  path='/meet/:url' element={ <VideoMeet /> }/>
-          <Route path="/history" element={ <History /> } />
+          <Route  path='/meet/:url' element={ <ProtectedVideoMeet /> }/>
+          <Route path="/history" element={ <ProtectedHistory /> } />
           <Route path="/*" element={ <NotFound /> } />
         </Routes>
       </AuthProvider>
