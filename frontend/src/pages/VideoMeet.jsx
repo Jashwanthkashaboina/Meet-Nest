@@ -1319,8 +1319,16 @@ function VideoMeetComponent() {
         setAskForUsername(false);
         getMedia();
     }
+    
+    const handleBack = () => {
+        if (window.localStream) {
+            window.localStream.getTracks().forEach(track => track.stop());
+        }
 
-
+        localStorage.removeItem('activeMeeting');
+        localStorage.removeItem('meetingUsername');
+        navigate('/home');
+    };
     return (
         <div>
             {askForUsername === true ? (
@@ -1342,6 +1350,12 @@ function VideoMeetComponent() {
                             disabled={!username.trim()}
                         >
                             CONNECT
+                        </Button>
+                        <Button
+                            variant="outlined"
+                            onClick={handleBack}
+                        >
+                            Back
                         </Button>
                     </div>
 
